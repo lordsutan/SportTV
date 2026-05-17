@@ -2,7 +2,7 @@
 # --------------------
 
 github:
-  repo: "lordsutan/SportKu"
+  repo: "lordsutan/SportTV"
   branch: "main"
 
 source:
@@ -13,11 +13,11 @@ source:
   retry_delay: 5       # seconds between retries
 
 output:
-  playlist: "output/sportku.m3u"
+  playlist: "output/sporttv.m3u"
   logos_dir: "logos"
   stats_file: "stats.json"
 
 logging:
   level: "INFO"        # DEBUG, INFO, WARNING, ERROR
-  file: "logs/sportku.log"
+  file: "logs/sporttv.log"
   max_log_files: 7     # keep last N log files

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SportKu - Automatic IPTV M3U Playlist Generator for Sports Channels
+SportTV - Automatic IPTV M3U Playlist Generator for Sports Channels
 """
 
 import os
@@ -61,9 +61,9 @@ def setup_logging(config: dict) -> logging.Logger:
     # Rotate: rename existing log with timestamp
     if log_file.exists():
         ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_file.rename(log_file.parent / f"sportku_{ts}.log")
+        log_file.rename(log_file.parent / f"sporttv_{ts}.log")
 
-    logger = logging.getLogger("sportku")
+    logger = logging.getLogger("sporttv")
     logger.setLevel(getattr(logging, log_cfg["level"].upper(), logging.INFO))
 
     fmt = logging.Formatter(
@@ -279,12 +279,12 @@ def write_stats(channels: list[dict], logos_downloaded: int, config: dict, logge
 # ---------------------------------------------------------------------------
 
 def run(config_path: str = "config.yaml"):
-    """Run the full SportKu pipeline."""
+    """Run the full SportTV pipeline."""
     config = load_config(config_path)
     logger = setup_logging(config)
 
     logger.info("=" * 60)
-    logger.info("SportKu - IPTV Sports Playlist Generator")
+    logger.info("SportTV - IPTV Sports Playlist Generator")
     logger.info("=" * 60)
 
     try:
@@ -321,10 +321,10 @@ def run(config_path: str = "config.yaml"):
 # ---------------------------------------------------------------------------
 
 def cli():
-    """Command-line interface for SportKu."""
+    """Command-line interface for SportTV."""
     parser = argparse.ArgumentParser(
-        prog="sportku",
-        description="SportKu - IPTV Sports Playlist Generator",
+        prog="sporttv",
+        description="SportTV - IPTV Sports Playlist Generator",
     )
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
@@ -405,12 +405,12 @@ def cmd_analyze(config_path: str):
     stats_path = Path(config["output"]["stats_file"])
     if not stats_path.exists():
         print(f"[ERROR] Stats file not found: {stats_path}")
-        print("        Run 'sportku run' first to generate stats.")
+        print("        Run 'sporttv run' first to generate stats.")
         sys.exit(1)
 
     stats = json.loads(stats_path.read_text(encoding="utf-8"))
     print("=" * 50)
-    print("  SportKu Playlist Analysis")
+    print("  SportTV Playlist Analysis")
     print("=" * 50)
     print(f"  Total channels:    {stats['total_channels']}")
     print(f"  Logo coverage:     {stats['logo_coverage_percent']}%")
@@ -434,7 +434,7 @@ def cmd_clean_logs(config_path: str, keep: int = None):
         print("[INFO] No logs directory found.")
         return
 
-    log_files = sorted(log_dir.glob("sportku_*.log"), key=lambda f: f.stat().st_mtime)
+    log_files = sorted(log_dir.glob("sporttv_*.log"), key=lambda f: f.stat().st_mtime)
     to_remove = log_files[:-max_keep] if len(log_files) > max_keep else []
 
     if not to_remove:

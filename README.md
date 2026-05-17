@@ -1,16 +1,16 @@
-# 🏀 SportKu
+# 🏀 SportTV
 
 Automatic IPTV M3U playlist generator for sports channels. Scrapes public sources, downloads logos, and produces a clean playlist updated daily via GitHub Actions.
 
 ## 📁 Project Structure
 
 ```
-SportKu/
-├── sportku.py              # Main script
+SportTV/
+├── sporttv.py              # Main script
 ├── config.yaml             # Configuration
 ├── requirements.txt        # Python dependencies
 ├── output/
-│   └── sportku.m3u         # Generated playlist
+│   └── sporttv.m3u         # Generated playlist
 ├── logos/                   # Downloaded channel logos
 ├── stats.json              # Playlist statistics
 ├── logs/                   # Execution logs
@@ -28,8 +28,8 @@ SportKu/
 ### Installation
 
 ```bash
-git clone https://github.com/lordsutan/SportKu.git
-cd SportKu
+git clone https://github.com/lordsutan/SportTV.git
+cd SportTV
 pip install -r requirements.txt
 ```
 
@@ -39,7 +39,7 @@ Edit `config.yaml` to set your GitHub repo name and source URL:
 
 ```yaml
 github:
-  repo: "yourusername/SportKu"
+  repo: "lordsutan/SportTV"
 
 source:
   url: "https://iptv-org.github.io/iptv/categories/sports.m3u"
@@ -51,20 +51,20 @@ source:
 
 ```bash
 # Run the full pipeline (fetch, parse, download logos, write playlist)
-python sportku.py run
+python sporttv.py run
 
 # Validate your config file
-python sportku.py validate
+python sporttv.py validate
 
 # Test the scraper without writing files
-python sportku.py test-scraper
+python sporttv.py test-scraper
 
 # Analyze current playlist stats
-python sportku.py analyze
+python sporttv.py analyze
 
 # Clean old log files (keeps last 7 by default)
-python sportku.py clean-logs
-python sportku.py clean-logs --keep 3
+python sporttv.py clean-logs
+python sporttv.py clean-logs --keep 3
 ```
 
 ## 🔄 GitHub Actions (Auto-Update)
@@ -78,14 +78,14 @@ The playlist updates automatically every day at **00:00 UTC** via GitHub Actions
 3. Under "Workflow permissions", select **Read and write permissions**
 4. The workflow will run daily and commit updated files
 
-You can also trigger it manually from the **Actions** tab → **Update SportKu Playlist** → **Run workflow**.
+You can also trigger it manually from the **Actions** tab → **Update SportTV Playlist** → **Run workflow**.
 
 ## 📺 Using the Playlist
 
 Once the repo is public and the playlist is generated, use the raw GitHub URL:
 
 ```
-https://raw.githubusercontent.com/lordsutan/SportKu/main/output/sportku.m3u
+https://raw.githubusercontent.com/lordsutan/SportTV/main/output/sporttv.m3u
 ```
 
 ### VLC Media Player
@@ -122,16 +122,16 @@ After running, check `stats.json` for:
 
 ```bash
 # 1. Validate config
-python sportku.py validate
+python sporttv.py validate
 
 # 2. Test scraper connectivity
-python sportku.py test-scraper
+python sporttv.py test-scraper
 
 # 3. Full run
-python sportku.py run
+python sporttv.py run
 
 # 4. Check results
-python sportku.py analyze
+python sporttv.py analyze
 ```
 
 ## 📝 Logging
