@@ -1,0 +1,23 @@
+# SportKu Configuration
+# --------------------
+
+github:
+  repo: "lordsutan/SportKu"
+  branch: "main"
+
+source:
+  # Public IPTV sports playlist source
+  url: "https://iptv-org.github.io/iptv/categories/sports.m3u"
+  timeout: 30          # seconds
+  max_retries: 3
+  retry_delay: 5       # seconds between retries
+
+output:
+  playlist: "output/sportku.m3u"
+  logos_dir: "logos"
+  stats_file: "stats.json"
+
+logging:
+  level: "INFO"        # DEBUG, INFO, WARNING, ERROR
+  file: "logs/sportku.log"
+  max_log_files: 7     # keep last N log files
