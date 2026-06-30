@@ -1,9 +1,10 @@
 {
-  "total_channels": 438,
-  "channels_with_logo_url": 428,
-  "logos_downloaded": 80,
-  "logo_coverage_percent": 18.7,
+  "total_channels": 437,
+  "channels_with_logo_url": 427,
+  "logos_downloaded": 84,
+  "logo_coverage_percent": 19.7,
   "groups": [
+    "Auto;Outdoor;Series;Sports",
     "Auto;Outdoor;Sports",
     "Comedy;Movies;Series;Sports",
     "Culture;Sports",
@@ -16,6 +17,6 @@
     "Public;Sports",
     "Sports"
   ],
-  "group_count": 11,
-  "last_updated": "2026-06-29T02:53:28.182378+00:00"
+  "group_count": 12,
+  "last_updated": "2026-06-30T02:49:03.332038+00:00"
 }
