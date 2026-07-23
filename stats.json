@@ -1,6 +1,6 @@
 {
-  "total_channels": 510,
-  "channels_with_logo_url": 498,
+  "total_channels": 508,
+  "channels_with_logo_url": 496,
   "logos_downloaded": 89,
   "logo_coverage_percent": 17.9,
   "groups": [
@@ -17,5 +17,5 @@
     "Sports"
   ],
   "group_count": 11,
-  "last_updated": "2026-07-22T02:03:55.477796+00:00"
+  "last_updated": "2026-07-23T02:10:50.514558+00:00"
 }
