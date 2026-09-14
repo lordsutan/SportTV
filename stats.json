@@ -7,6 +7,7 @@
     "Auto;Outdoor;Series;Sports",
     "Auto;Outdoor;Sports",
     "Comedy;Movies;Series;Sports",
+    "Culture;Entertainment;Sports",
     "Culture;Entertainment;Sports;Travel",
     "Culture;Sports",
     "Entertainment;Sports",
@@ -17,6 +18,6 @@
     "Public;Sports",
     "Sports"
   ],
-  "group_count": 12,
-  "last_updated": "2026-09-13T02:38:45.476808+00:00"
+  "group_count": 13,
+  "last_updated": "2026-09-14T02:54:25.592522+00:00"
 }
