@@ -1,8 +1,8 @@
 {
   "total_channels": 479,
   "channels_with_logo_url": 477,
-  "logos_downloaded": 111,
-  "logo_coverage_percent": 23.3,
+  "logos_downloaded": 112,
+  "logo_coverage_percent": 23.5,
   "groups": [
     "Auto;Outdoor;Series;Sports",
     "Auto;Outdoor;Sports",
@@ -19,5 +19,5 @@
     "Sports"
   ],
   "group_count": 13,
-  "last_updated": "2026-11-02T03:54:02.170044+00:00"
+  "last_updated": "2026-11-03T04:56:25.411882+00:00"
 }
