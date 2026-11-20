@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="PickleballTV: live pickleball 24/7, free. PPA Tour and Major League Pickleball, plus original shows and podcasts.">
+<title>PickleballTV</title>
+<meta name="theme-color" content="#0b1a0d">
+<link rel="icon" href="assets/favicon.png" type="image/png">
+<!-- Sinclair cookie consent (Ketch), same configuration as stream.pickleballtv.com: org "sbgi", property "pickleballtv".
+     Keep this first. Any analytics or ad tags added later must wait for consent through Ketch. -->
+<script>!function(){window.semaphore=window.semaphore||[];window.ketch=function(){window.semaphore.push(arguments)};var e=document.createElement("script");e.type="text/javascript",e.src="https://global.ketchcdn.com/web/v3/config/sbgi/pickleballtv/boot.js",e.defer=e.async=!0,document.getElementsByTagName("head")[0].appendChild(e);}();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: broadcast-dark homepage. Full-bleed bands, each with an inner 1180px column.
+   Hero = thesis (always on, free) + live "on now" card; then the day-by-day schedule,
+   where to watch, plans, footer. */
+:root {
+  --bg: #0b1a0d;          /* court black-green */
+  --surface: #12261500;   /* unused placeholder, see below */
+  --panel: #122a17;       /* raised panel */
+  --panel-2: #1a3a20;     /* second level */
+  --court: #0a4709;       /* PBTV court green */
+  --fg: #f1f5ec;
+  --muted: #a7b7a3;
+  --line: rgba(241,245,236,.14);
+  --live: #2db928;        /* the one bright accent */
+  --live-ink: #04210a;
+  --onair: #d0302c;      /* broadcast red: live events only */
+  --onair-ink: #ffffff;
+  --lines: rgba(241,245,236,.22); /* court lines on dark */
+  --shadow: 0 18px 40px rgba(0,0,0,.45);
+  --logo-tile: #ffffff;   /* partner logos need a white ground in both themes */
+  --display: "Barlow Condensed", "Arial Narrow", Impact, sans-serif;
+  --body: "Barlow", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f2f5ee; --panel: #ffffff; --panel-2: #e4ece0; --court: #0a4709;
+    --fg: #0f2412; --muted: #4b614e; --line: rgba(10,71,9,.16);
+    --live: #1b8f19; --live-ink: #ffffff; --lines: rgba(10,71,9,.28);
+    --shadow: 0 18px 40px rgba(10,40,12,.14);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #f2f5ee; --panel: #ffffff; --panel-2: #e4ece0; --court: #0a4709;
+  --fg: #0f2412; --muted: #4b614e; --line: rgba(10,71,9,.16);
+  --live: #1b8f19; --live-ink: #ffffff; --lines: rgba(10,71,9,.28);
+  --shadow: 0 18px 40px rgba(10,40,12,.14);
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; } }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+a { color: inherit; }
+img, svg { max-width: 100%; }
+h1, h2, h3, h4 { margin: 0; font-family: var(--display); text-transform: uppercase; line-height: .95; letter-spacing: .005em; text-wrap: balance; }
+h2 { font-size: clamp(32px, 4.5vw, 48px); font-weight: 800; }
+h3 { font-size: 22px; font-weight: 700; }
+p { margin: 0; }
+:focus-visible { outline: 3px solid var(--live); outline-offset: 3px; border-radius: 4px; }
+
+.wrap { max-width: 1180px; margin-inline: auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.band { padding-block: clamp(48px, 7vw, 88px); }
+.band + .band { border-top: 1px solid var(--line); }
+.eyebrow { font-family: var(--display); text-transform: uppercase; letter-spacing: .14em; font-size: 13px; font-weight: 700; color: var(--muted); }
+.sec-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; margin-bottom: 28px; }
+.sec-head p { max-width: 60ch; color: var(--muted); }
+.more { font-family: var(--display); text-transform: uppercase; letter-spacing: .06em; font-weight: 700; font-size: 15px; text-decoration: none; border-bottom: 2px solid var(--live); padding-bottom: 2px; white-space: nowrap; }
+.more:hover { color: var(--live); }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 22px; border-radius: 4px; font-family: var(--display); text-transform: uppercase; font-weight: 700; font-size: 18px; letter-spacing: .05em; text-decoration: none; border: 2px solid transparent; cursor: pointer; transition: transform .12s ease, background .12s ease, color .12s ease; }
+.btn:hover { transform: translateY(-1px); }
+.btn-live { background: var(--live); color: var(--live-ink); border-color: var(--live); }
+.btn-live:hover { filter: brightness(1.08); }
+.btn-ghost { background: transparent; color: var(--fg); border-color: var(--lines); }
+.btn-ghost:hover { border-color: var(--fg); }
+.btn-sm { min-height: 40px; font-size: 16px; padding: 0 16px; }
+
+/* header */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 68px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+/* Official PickleballTV logo (from stream.pickleballtv.com). The file is all white, so it is used as a mask
+   and filled with the text color: white on the dark theme, dark green on the light theme. */
+.logo { display: block; width: 152px; max-width: 100%; aspect-ratio: 727.65 / 191.75; background: currentColor;
+  -webkit-mask: url("assets/pbtv-logo.svg") center / contain no-repeat; mask: url("assets/pbtv-logo.svg") center / contain no-repeat; }
+footer .logo { width: 140px; }
+@media (max-width: 440px) { .top .logo { width: 132px; } }
+.nav { display: flex; align-items: center; gap: 4px 22px; font-family: var(--display); text-transform: uppercase; font-weight: 700; font-size: 16px; letter-spacing: .06em; }
+.nav a { text-decoration: none; padding: 8px 0; border-bottom: 2px solid transparent; }
+.nav a:hover { border-bottom-color: var(--live); }
+.nav .btn { padding: 0 16px; min-height: 40px; font-size: 16px; }
+.nav-secondary { display: flex; gap: 22px; }
+@media (max-width: 820px) { .nav-secondary { display: none; } }
+@media (max-width: 440px) { .nav .login { display: none; } }
+
+/* hero */
+.hero { position: relative; overflow: hidden; background: var(--court); color: #fff; }
+.hero .court { position: absolute; inset: 0; pointer-events: none; opacity: .9; }
+.hero .wrap { position: relative; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 40px; align-items: center; padding-block: clamp(48px, 7vw, 96px); }
+@media (max-width: 900px) { .hero .wrap { grid-template-columns: 1fr; } }
+.hero h1 { font-size: clamp(56px, 9vw, 120px); font-weight: 800; letter-spacing: -.005em; }
+.hero h1 .dim { color: rgba(255,255,255,.72); }
+.hero .lede { margin-top: 20px; max-width: 46ch; font-size: 18px; color: rgba(255,255,255,.86); }
+.hero .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.hero .btn-ghost { color: #fff; border-color: rgba(255,255,255,.5); }
+.hero .btn-ghost:hover { border-color: #fff; }
+.hero .btn-live { background: #2db928; color: #04210a; border-color: #2db928; }
+.hero .fine { margin-top: 18px; font-size: 13px; color: rgba(255,255,255,.7); }
+
+/* on-now card */
+.onnow { background: #071509; color: #fff; border-radius: 10px; box-shadow: var(--shadow); overflow: hidden; border: 1px solid rgba(255,255,255,.1); }
+.onnow .screen { position: relative; aspect-ratio: 16 / 9; max-width: 100%; background:
+  radial-gradient(120% 90% at 50% 110%, rgba(45,185,40,.35), transparent 60%),
+  linear-gradient(180deg, #0f3a16, #071509); display: grid; place-items: center; }
+.onnow .screen::before { content: ""; position: absolute; inset: 0; background-image:
+  linear-gradient(90deg, rgba(255,255,255,.18) 1px, transparent 1px),
+  linear-gradient(0deg, rgba(255,255,255,.18) 1px, transparent 1px);
+  background-size: 50% 100%, 100% 32%; background-position: 50% 0, 0 34%; opacity: .5; mix-blend-mode: screen; }
+.onnow .play { position: relative; width: 72px; height: 72px; border-radius: 50%; background: #2db928; display: grid; place-items: center; box-shadow: 0 10px 30px rgba(45,185,40,.45); text-decoration: none; }
+.onnow .play::after { content: ""; margin-left: 5px; border-style: solid; border-width: 13px 0 13px 22px; border-color: transparent transparent transparent #04210a; }
+.onnow .play:hover { transform: scale(1.05); }
+.badge { display: inline-flex; align-items: center; gap: 8px; font-family: var(--display); text-transform: uppercase; font-weight: 800; font-size: 13px; letter-spacing: .12em; background: #2db928; color: #04210a; padding: 4px 10px; border-radius: 3px; }
+.badge .dot { width: 8px; height: 8px; border-radius: 50%; background: #04210a; animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: .35 } }
+.onnow .meta { position: absolute; left: 16px; top: 16px; display: flex; gap: 10px; align-items: center; }
+.onnow .body { padding: 16px 18px 18px; display: grid; gap: 4px; }
+.onnow .body .eyebrow { color: rgba(255,255,255,.6); }
+.onnow .title { font-family: var(--display); text-transform: uppercase; font-weight: 700; font-size: 24px; line-height: 1; }
+.onnow .sub { color: rgba(255,255,255,.75); font-size: 15px; }
+.onnow .next { margin-top: 10px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.12); font-size: 14px; color: rgba(255,255,255,.75); display: flex; gap: 10px; flex-wrap: wrap; }
+.onnow .next b { color: #fff; font-weight: 600; }
+
+/* schedule */
+.days { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: thin; margin-bottom: 20px; }
+.day { flex: 0 0 auto; min-width: 72px; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); cursor: pointer; font-family: var(--display); text-transform: uppercase; text-align: center; line-height: 1; }
+.day .mo { display: block; font-size: 12px; letter-spacing: .12em; color: var(--muted); font-weight: 700; }
+.day .d { display: block; font-size: 26px; font-weight: 800; margin-top: 4px; }
+.day .wd { display: block; font-size: 12px; letter-spacing: .08em; color: var(--muted); margin-top: 4px; font-weight: 600; }
+.day[aria-selected="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.day[aria-selected="true"] .mo, .day[aria-selected="true"] .wd { color: color-mix(in srgb, var(--bg) 70%, var(--fg)); }
+.sched { display: grid; gap: 0; border-top: 1px solid var(--line); }
+.row { display: grid; grid-template-columns: 110px minmax(0, 1fr) auto; gap: 8px 20px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); min-width: 0; }
+@media (max-width: 560px) { .row { grid-template-columns: 84px minmax(0, 1fr); } .row .act { grid-column: 2; justify-self: start; } .row .act:has(.tag) { display: none; } }
+.row .time { font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: .02em; font-variant-numeric: tabular-nums; line-height: 1; }
+.row .time small { display: block; font-size: 11px; letter-spacing: .14em; color: var(--muted); margin-top: 4px; font-weight: 700; }
+.row .what { min-width: 0; }
+.row .show { font-weight: 600; font-size: 17px; }
+.row .ep { color: var(--muted); font-size: 15px; }
+.row .act { justify-self: end; }
+.row.now { background: linear-gradient(90deg, color-mix(in srgb, var(--live) 14%, transparent), transparent 60%); margin-inline: -12px; padding-inline: 12px; }
+.row.now .time { color: var(--live); }
+.row.past { opacity: .5; }
+.row.tba .show { color: var(--muted); font-weight: 500; }
+.tag.premiere { background: var(--live); color: var(--live-ink); border-color: var(--live); }
+
+/* live events */
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.tag.onair { display: inline-flex; align-items: center; gap: 6px; background: var(--onair); color: var(--onair-ink); border-color: var(--onair); }
+.tag.onair::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.row.now.is-live { background: linear-gradient(90deg, color-mix(in srgb, var(--onair) 16%, transparent), transparent 60%); }
+.row.now.is-live .time { color: var(--onair); }
+.badge.onair { background: var(--onair); color: var(--onair-ink); }
+.badge.onair .dot { background: var(--onair-ink); }
+.day { position: relative; }
+.day .flag { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--onair); }
+.onnow .next .tag { padding: 1px 6px; font-size: 11px; }
+@media (max-width: 560px) { .row .act:has(.tag.onair) { display: block; } }
+.onnow .art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.onnow .screen.has-art::before { display: none; }
+.onnow .screen.has-art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.1) 45%, rgba(0,0,0,.5)); }
+.onnow .meta, .onnow .play { z-index: 2; }
+
+.tag { display: inline-block; font-family: var(--display); text-transform: uppercase; letter-spacing: .1em; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 3px; border: 1px solid var(--line); color: var(--muted); }
+.tag.live { background: var(--live); color: var(--live-ink); border-color: var(--live); }
+.tz { color: var(--muted); font-size: 14px; }
+.empty { padding: 36px 20px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 8px; }
+.empty b { color: var(--fg); font-weight: 600; }
+.sched-foot { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+
+/* where to watch */
+.platforms { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.plat { background: var(--logo-tile); border: 1px solid var(--line); border-radius: 8px; height: 96px; display: grid; place-items: center; padding: 12px; }
+.plat img { display: block; width: auto; max-width: 100%; object-fit: contain; }  /* each logo gets an inline height chosen for equal visual weight */
+@media (max-width: 420px) { .platforms { grid-template-columns: repeat(2, minmax(0, 1fr)); } .plat { height: 84px; } }
+
+/* plans */
+.plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+@media (max-width: 760px) { .plans { grid-template-columns: 1fr; } }
+.plan { border-radius: 10px; padding: 28px; border: 1px solid var(--line); background: var(--panel); display: grid; gap: 14px; align-content: start; }
+.plan.featured { border-color: var(--live); box-shadow: var(--shadow); }
+.plan h3 { font-size: 34px; font-weight: 800; }
+.plan ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; color: var(--muted); }
+.plan li { display: flex; gap: 10px; align-items: start; }
+.plan li::before { content: ""; flex: 0 0 auto; width: 14px; height: 14px; margin-top: 5px; border-radius: 50%; background: var(--live); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z'/%3E%3C/svg%3E") center/contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z'/%3E%3C/svg%3E") center/contain no-repeat; }
+.plan .btn { justify-self: start; }
+.plan .note { font-size: 13px; color: var(--muted); }
+
+/* social strip */
+.social { display: flex; flex-wrap: wrap; gap: 12px; }
+.social a { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 10px 18px 10px 12px; font-family: var(--display); text-transform: uppercase; font-weight: 700; letter-spacing: .06em; }
+.social a:hover { border-color: var(--live); color: var(--live); }
+.social svg { width: 20px; height: 20px; fill: currentColor; }
+
+/* footer */
+footer { border-top: 1px solid var(--line); padding-block: 40px 56px; color: var(--muted); font-size: 14px; }
+footer .wrap { display: grid; gap: 28px; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); }
+@media (max-width: 760px) { footer .wrap { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 460px) { footer .wrap { grid-template-columns: 1fr; } }
+footer h4 { font-size: 14px; letter-spacing: .12em; color: var(--fg); margin-bottom: 10px; }
+footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+footer a { text-decoration: none; }
+footer a:hover { color: var(--live); }
+.legal-links { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+.linklike { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }
+.linklike:hover { color: var(--live); }
+.legal { grid-column: 1 / -1; padding-top: 20px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="PickleballTV home">
+      <span class="logo" role="img" aria-label="PickleballTV"></span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <div class="nav-secondary">
+        <a href="#schedule">Schedule</a>
+        <a href="#watch">Where to watch</a>
+      </div>
+      <a class="login" href="https://stream.pickleballtv.com/login">Log in</a>
+      <a class="btn btn-live" href="https://stream.pickleballtv.com/player?self-link=https%3A%2F%2Fzapp-pbtv.web.app%2Fjw%2Fmedia%2FVHkNpfd6%3FdisablePlayNext%3Dfalse%26withErrors%3Dfalse&amp;screen-id=f1b31e8d-ce68-487b-b019-bc29d197ef94">Watch free</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" aria-labelledby="hero-h">
+    <svg class="court" viewBox="0 0 1600 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <!-- Court drawn to scale: 20 x 44 ft, with the 7 ft non-volley zone (the kitchen) shaded either side of the net. -->
+      <g fill="none" stroke="rgba(255,255,255,.16)" stroke-width="3">
+        <rect x="200" y="60" width="1200" height="580"/>
+        <line x1="800" y1="40" x2="800" y2="660" stroke="rgba(255,255,255,.3)" stroke-width="6"/>
+        <line x1="582" y1="60" x2="582" y2="640"/>
+        <line x1="1018" y1="60" x2="1018" y2="640"/>
+        <line x1="200" y1="350" x2="582" y2="350"/>
+        <line x1="1018" y1="350" x2="1400" y2="350"/>
+      </g>
+      <g fill="rgba(255,255,255,.08)">
+        <rect x="582" y="60" width="218" height="580"/>
+        <rect x="800" y="60" width="218" height="580"/>
+      </g>
+    </svg>
+    <div class="wrap">
+      <div>
+        <p class="eyebrow" style="color:rgba(255,255,255,.7)">Always playing on PickleballTV</p>
+        <h1 id="hero-h" style="margin-top:10px">Live.<br>24/7.<br><span class="dim">Free.</span></h1>
+        <p class="lede">The only channel that never leaves the court. PPA Tour and Major League Pickleball live, plus original shows, podcasts and the kitchen talk in between. No sign-up required to start watching.</p>
+        <div class="ctas">
+          <a class="btn btn-live" href="https://stream.pickleballtv.com/player?self-link=https%3A%2F%2Fzapp-pbtv.web.app%2Fjw%2Fmedia%2FVHkNpfd6%3FdisablePlayNext%3Dfalse%26withErrors%3Dfalse&amp;screen-id=f1b31e8d-ce68-487b-b019-bc29d197ef94">Watch free now</a>
+          <a class="btn btn-ghost" href="https://stream.pickleballtv.com/plans">See plans</a>
+        </div>
+        <p class="fine">Also on Prime Video, The Roku Channel, Samsung TV Plus and more. All times Eastern.</p>
+      </div>
+      <div class="onnow" id="onnow" aria-live="polite">
+        <div class="screen">
+          <img class="art" id="now-art" alt="" hidden>
+          <div class="meta"><span class="badge" id="now-badge"><span class="dot"></span><span id="now-badge-text">On air</span></span></div>
+          <a class="play" href="https://stream.pickleballtv.com/player?self-link=https%3A%2F%2Fzapp-pbtv.web.app%2Fjw%2Fmedia%2FVHkNpfd6%3FdisablePlayNext%3Dfalse%26withErrors%3Dfalse&amp;screen-id=f1b31e8d-ce68-487b-b019-bc29d197ef94" aria-label="Play the live stream"></a>
+        </div>
+        <div class="body">
+          <span class="eyebrow">On now</span>
+          <span class="title" id="now-title">PickleballTV Live</span>
+          <span class="sub" id="now-sub">Loading the channel guide</span>
+          <span class="next" id="now-next"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="schedule" aria-labelledby="sched-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow">Coming up on PickleballTV</p>
+          <h2 id="sched-h" style="margin-top:6px">Today's lineup</h2>
+        </div>
+        <span class="tz" id="tz-note">Times shown in Eastern.</span>
+      </div>
+      <div class="days" role="tablist" aria-label="Pick a day" id="days"></div>
+      <div class="sched" id="sched" role="tabpanel"></div>
+      <div class="sched-foot">
+        <span class="tz"><span id="feed-status"></span> Live events can run long. When they do, the following program joins in progress.</span>
+        <a class="more" href="https://stream.pickleballtv.com/player?self-link=https%3A%2F%2Fzapp-pbtv.web.app%2Fjw%2Fmedia%2FVHkNpfd6%3FdisablePlayNext%3Dfalse%26withErrors%3Dfalse&amp;screen-id=f1b31e8d-ce68-487b-b019-bc29d197ef94">Open the live player</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="watch" aria-labelledby="watch-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow">PickleballTV is available to stream on</p>
+          <h2 id="watch-h" style="margin-top:6px">Every screen you own</h2>
+        </div>
+        <p>Watch PickleballTV on these streaming services. Some are free and some need a subscription. Please check back for new launches on other TV platforms.</p>
+      </div>
+      <ul class="platforms" aria-label="Streaming services that carry PickleballTV">
+        <li class="plat"><img src="assets/platforms/prime-video.png" alt="Prime Video" width="334" height="111" loading="lazy" decoding="async" style="height:36px"></li>
+        <li class="plat"><img src="assets/platforms/roku-channel.png" alt="The Roku Channel" width="236" height="128" loading="lazy" decoding="async" style="height:47px"></li>
+        <li class="plat"><img src="assets/platforms/youtube-tv.png" alt="YouTube TV" width="375" height="80" loading="lazy" decoding="async" style="height:29px"></li>
+        <li class="plat"><img src="assets/platforms/samsung-tv-plus.png" alt="Samsung TV Plus" width="305" height="98" loading="lazy" decoding="async" style="height:36px"></li>
+        <li class="plat"><img src="assets/platforms/lg-channels.png" alt="LG Channels" width="283" height="106" loading="lazy" decoding="async" style="height:39px"></li>
+        <li class="plat"><img src="assets/platforms/fubo.png" alt="Fubo" width="264" height="97" loading="lazy" decoding="async" style="height:38px"></li>
+        <li class="plat"><img src="assets/platforms/xumo-play.png" alt="Xumo Play" width="228" height="111" loading="lazy" decoding="async" style="height:44px"></li>
+        <li class="plat"><img src="assets/platforms/the-cw.png" alt="The CW" width="192" height="92" loading="lazy" decoding="async" style="height:44px"></li>
+        <li class="plat"><img src="assets/platforms/plex.png" alt="Plex" width="225" height="111" loading="lazy" decoding="async" style="height:44px"></li>
+        <li class="plat"><img src="assets/platforms/myfree-directv.png" alt="MyFree DIRECTV" width="286" height="92" loading="lazy" decoding="async" style="height:36px"></li>
+        <li class="plat"><img src="assets/platforms/philo.png" alt="Philo" width="206" height="94" loading="lazy" decoding="async" style="height:43px"></li>
+        <li class="plat"><img src="assets/platforms/local-now.png" alt="Local Now" width="119" height="120" loading="lazy" decoding="async" style="height:50px"></li>
+        <li class="plat"><img src="assets/platforms/fire-tv.png" alt="Fire TV" width="204" height="116" loading="lazy" decoding="async" style="height:48px"></li>
+        <li class="plat"><img src="assets/platforms/tcl-tv-plus.png" alt="TCL tv+" width="221" height="59" loading="lazy" decoding="async" style="height:33px"></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band" id="plans" aria-labelledby="plans-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow">Two ways to watch</p>
+          <h2 id="plans-h" style="margin-top:6px">Start free. Stay for everything.</h2>
+        </div>
+      </div>
+      <div class="plans">
+        <div class="plan">
+          <span class="eyebrow">Free</span>
+          <h3>PickleballTV Live</h3>
+          <ul>
+            <li>The 24/7 live channel, no account needed</li>
+            <li>PPA Tour and MLP as they air</li>
+            <li>Original shows in the linear lineup</li>
+          </ul>
+          <a class="btn btn-ghost" href="https://stream.pickleballtv.com/player?self-link=https%3A%2F%2Fzapp-pbtv.web.app%2Fjw%2Fmedia%2FVHkNpfd6%3FdisablePlayNext%3Dfalse%26withErrors%3Dfalse&amp;screen-id=f1b31e8d-ce68-487b-b019-bc29d197ef94">Watch free</a>
+        </div>
+        <div class="plan featured">
+          <span class="eyebrow" style="color:var(--live)">Subscribe</span>
+          <h3>PickleballTV Subscription</h3>
+          <ul>
+            <li>Every court from every event, live and on demand</li>
+            <li>Full match replays and condensed matches</li>
+            <li>Originals and podcasts whenever you want them</li>
+          </ul>
+          <a class="btn btn-live" href="https://stream.pickleballtv.com/plans">See plans and pricing</a>
+          <span class="note">Current pricing and plan names are shown at checkout.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="social-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow">We're serving up 24/7 pickleball</p>
+          <h2 id="social-h" style="margin-top:6px">Follow the channel</h2>
+        </div>
+        <p>Tournament updates, behind-the-scenes, plus tips and tricks from the pros.</p>
+      </div>
+      <div class="social">
+        <a href="https://www.instagram.com/pickleballtv/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-3.3-.1-4.8-1.7-4.9-4.9C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8C2.4 3.9 4 2.4 7.2 2.3c1.2-.1 1.6-.1 4.8-.1zM12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 8.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4zm5.2-9.6a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4z"/></svg>Instagram</a>
+        <a href="https://x.com/Pickleballtv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.2 2h3.4l-7.4 8.5L23 22h-6.8l-5.3-7-6.1 7H1.4l7.9-9L1 2h7l4.8 6.4L18.2 2zm-1.2 18h1.9L7.1 3.9H5.1L17 20z"/></svg>X</a>
+        <a href="https://www.tiktok.com/@pickleballtv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.6 5.8A4.3 4.3 0 0 1 15.5 3h-3.1v12.4a2.6 2.6 0 1 1-2.6-2.6c.3 0 .5 0 .8.1V9.7a5.7 5.7 0 1 0 4.9 5.6V9a7.4 7.4 0 0 0 4.3 1.4V7.3a4.3 4.3 0 0 1-3.2-1.5z"/></svg>TikTok</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="brand" href="#top" aria-label="PickleballTV home" style="color:var(--fg)">
+        <span class="logo" role="img" aria-label="PickleballTV"></span>
+      </a>
+      <p style="margin-top:12px; max-width: 40ch">A Tennis Channel network. Pickleball, wherever and whenever you want it.</p>
+    </div>
+    <div>
+      <h4>Watch</h4>
+      <ul>
+        <li><a href="https://stream.pickleballtv.com/player?self-link=https%3A%2F%2Fzapp-pbtv.web.app%2Fjw%2Fmedia%2FVHkNpfd6%3FdisablePlayNext%3Dfalse%26withErrors%3Dfalse&amp;screen-id=f1b31e8d-ce68-487b-b019-bc29d197ef94">Live channel</a></li>
+        <li><a href="#schedule">Schedule</a></li>
+        <li><a href="https://stream.pickleballtv.com/plans">Plans</a></li>
+        <li><a href="https://stream.pickleballtv.com/login">Log in</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Pickleball</h4>
+      <ul>
+        <li><a href="https://www.ppatour.com/">PPA Tour</a></li>
+        <li><a href="https://www.majorleaguepickleball.net/">Major League Pickleball</a></li>
+        <li><a href="https://www.tennischannel.com/">Tennis Channel</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Follow</h4>
+      <ul>
+        <li><a href="https://www.instagram.com/pickleballtv/">Instagram</a></li>
+        <li><a href="https://x.com/Pickleballtv">X</a></li>
+        <li><a href="https://www.tiktok.com/@pickleballtv">TikTok</a></li>
+      </ul>
+    </div>
+    <div class="legal">
+      <span>© 2026 PickleballTV. A Sinclair, Inc. company.</span>
+      <nav class="legal-links" aria-label="Legal">
+        <a href="https://sbgi.net/privacy-policy/">Privacy Policy</a>
+        <a href="https://sbgi.net/terms-conditions/">Terms &amp; Conditions</a>
+        <a href="https://sbgi.net/privacy-policy/#cookie-policy">Cookie Policy</a>
+        <button type="button" class="linklike" id="cookie-prefs">Cookie Preferences</button>
+        <a href="https://sbgi.net/privacy-rights/">Do Not Sell My Info</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // The channel guide (XMLTV) that also feeds the TV platforms. It allows cross-site reads, so the page loads it directly.
+  const FEED_URL = "https://d3bd0tgyk368z1.cloudfront.net/feeds/epg/pkball_ono/PKBALL.xml";
+  const REFRESH_MS = 15 * 60 * 1000;   // re-read the guide every 15 minutes
+  const TICK_MS = 60 * 1000;           // move "on now" forward every minute
+  const PLAYER = "https://stream.pickleballtv.com/player?self-link=https%3A%2F%2Fzapp-pbtv.web.app%2Fjw%2Fmedia%2FVHkNpfd6%3FdisablePlayNext%3Dfalse%26withErrors%3Dfalse&screen-id=f1b31e8d-ce68-487b-b019-bc29d197ef94";
+  // Saved copy of the guide from Nov 06, 2026 01:07 UTC, used only if the feed can't be reached.
+  // Rows: [start UTC, stop UTC, title, sub-title, description, artwork URL, premiere, live]
+  const FALLBACK = [
+    ["2026-11-04T11:00:00Z","2026-11-04T17:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Round of 64","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",0,0],
+    ["2026-11-04T17:00:00Z","2026-11-05T01:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Round of 32","Live Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",1,1],
+    ["2026-11-05T01:00:00Z","2026-11-05T09:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Round of 32","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",1,0],
+    ["2026-11-05T09:00:00Z","2026-11-05T11:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Round of 32","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",0,0],
+    ["2026-11-05T11:00:00Z","2026-11-05T17:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Round of 32","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",0,0],
+    ["2026-11-05T17:00:00Z","2026-11-06T03:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Round of 16","Live Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",1,1],
+    ["2026-11-06T03:00:00Z","2026-11-06T11:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Round of 16","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",1,0],
+    ["2026-11-06T11:00:00Z","2026-11-06T17:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Round of 16","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",0,0],
+    ["2026-11-06T17:00:00Z","2026-11-07T01:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Quarterfinals","Live Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",1,1],
+    ["2026-11-07T01:00:00Z","2026-11-07T09:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Quarterfinals","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",1,0],
+    ["2026-11-07T09:00:00Z","2026-11-07T11:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Quarterfinals","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",0,0],
+    ["2026-11-07T11:00:00Z","2026-11-07T17:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Quarterfinals","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",0,0],
+    ["2026-11-07T17:00:00Z","2026-11-08T01:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Semifinals","Live Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",1,1],
+    ["2026-11-08T01:00:00Z","2026-11-08T09:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Semifinals","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",1,0],
+    ["2026-11-08T09:00:00Z","2026-11-08T11:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Semifinals","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",0,0],
+    ["2026-11-08T11:00:00Z","2026-11-08T16:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Semifinals","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",0,0],
+    ["2026-11-08T16:00:00Z","2026-11-08T22:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Championship Sunday","Live Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",1,1],
+    ["2026-11-08T22:00:00Z","2026-11-08T23:00:00Z","Spec Check","Spec Check - Episode 1","The ultimate Pickleball gear review show revealing the sport's latest technology and newest products","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/SPEC_CHECK_16x9.jpg",1,0],
+    ["2026-11-08T23:00:00Z","2026-11-09T05:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Championship Sunday","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",1,0],
+    ["2026-11-09T05:00:00Z","2026-11-09T06:00:00Z","Spec Check","Spec Check - Episode 1","The ultimate Pickleball gear review show revealing the sport's latest technology and newest products","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/SPEC_CHECK_16x9.jpg",0,0],
+    ["2026-11-09T06:00:00Z","2026-11-09T08:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Round of 16","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",0,0],
+    ["2026-11-09T08:00:00Z","2026-11-09T11:00:00Z","PPA Tour Pickleball","PPA Chicago Cup: Championship Sunday","Pickleball coverage from PPA Tour: Chicago Cup","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPACHICAGO169.jpg",0,0],
+    ["2026-11-09T11:00:00Z","2026-11-09T18:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Quarterfinals","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",0,0],
+    ["2026-11-09T18:00:00Z","2026-11-09T19:00:00Z","Spec Check","Spec Check - Episode 1","The ultimate Pickleball gear review show revealing the sport's latest technology and newest products","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/SPEC_CHECK_16x9.jpg",0,0],
+    ["2026-11-09T19:00:00Z","2026-11-09T19:30:00Z","Brighter Pickleball: On Tour","Episode 27 - Hong Kong Part 1","Brighter Pickleball: On Tour Episode 27","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/BRIGHT_16x9.jpg",0,0],
+    ["2026-11-09T19:30:00Z","2026-11-09T21:30:00Z","PPA Tour Pickleball","Pickleball World Championships: Championship Sunday","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",0,0],
+    ["2026-11-09T21:30:00Z","2026-11-09T22:00:00Z","Beyond The Courts: LA Xtreme - Powered by Organics Ocean","Episode 5","LA Xtreme gives you an inside look at their team and processes","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/LAXtreme16x9correct.jpg",1,0],
+    ["2026-11-09T22:00:00Z","2026-11-10T00:00:00Z","MLP Champions Series","MLP Champions Series: Dallas TeamBattle","MLP Champions Series: Dallas TeamBattle Part 1 -","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/MLPChampionshipSeries16x9.jpg",1,0],
+    ["2026-11-10T00:00:00Z","2026-11-10T01:00:00Z","Pickleballers Podcast","Featuring Lacy Schneeman","Pickleballers Podcast with featured guest Lacy Schneeman","https://dh7h3upxwg7do.cloudfront.net/Images/S3/PickleballersPOD169.jpg",1,0],
+    ["2026-11-10T01:00:00Z","2026-11-10T08:30:00Z","PPA Tour Pickleball","Pickleball World Championships: Semifinals","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",0,0],
+    ["2026-11-10T08:30:00Z","2026-11-10T09:00:00Z","Brighter Pickleball: On Tour","Episode 27 - Hong Kong Part 1","Brighter Pickleball: On Tour Episode 27","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/BRIGHT_16x9.jpg",0,0],
+    ["2026-11-10T09:00:00Z","2026-11-10T10:00:00Z","Spec Check","Spec Check - Episode 1","The ultimate Pickleball gear review show revealing the sport's latest technology and newest products","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/SPEC_CHECK_16x9.jpg",0,0],
+    ["2026-11-10T10:00:00Z","2026-11-10T10:30:00Z","Beyond The Courts: LA Xtreme - Powered by Organics Ocean","Episode 4","LA Xtreme gives you an inside look at their team and processes","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/LAXtreme16x9correct.jpg",0,0],
+    ["2026-11-10T10:30:00Z","2026-11-10T11:00:00Z","Beyond The Courts: LA Xtreme - Powered by Organics Ocean","Episode 5","LA Xtreme gives you an inside look at their team and processes","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/LAXtreme16x9correct.jpg",0,0],
+    ["2026-11-10T11:00:00Z","2026-11-10T18:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Semifinals","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",0,0],
+    ["2026-11-10T18:00:00Z","2026-11-10T19:00:00Z","Pickleballers Podcast","Featuring Fedrico Staksrud","Pickleballers Podcast with featured guest Fedrico Staksrud","https://dh7h3upxwg7do.cloudfront.net/Images/S3/PickleballersPOD169.jpg",0,0],
+    ["2026-11-10T19:00:00Z","2026-11-10T20:00:00Z","Spec Check","Spec Check - Episode 1","The ultimate Pickleball gear review show revealing the sport's latest technology and newest products","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/SPEC_CHECK_16x9.jpg",0,0],
+    ["2026-11-10T20:00:00Z","2026-11-11T00:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Championship Sunday","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",0,0],
+    ["2026-11-11T00:00:00Z","2026-11-11T00:30:00Z","Brighter Pickleball: On Tour","Episode 26 - Chicago","Brighter Pickleball: On Tour Episode 26","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/BRIGHT_16x9.jpg",0,0],
+    ["2026-11-11T00:30:00Z","2026-11-11T01:00:00Z","Brighter Pickleball: On Tour","Episode 27 - Hong Kong Part 1","Brighter Pickleball: On Tour Episode 27","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/BRIGHT_16x9.jpg",0,0],
+    ["2026-11-11T01:00:00Z","2026-11-11T07:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Championship Sunday","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",0,0],
+    ["2026-11-11T07:00:00Z","2026-11-11T08:00:00Z","Spec Check","Spec Check - Episode 1","The ultimate Pickleball gear review show revealing the sport's latest technology and newest products","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/SPEC_CHECK_16x9.jpg",0,0],
+    ["2026-11-11T08:00:00Z","2026-11-11T09:00:00Z","Pickleballers Podcast","Featuring Gabe Tardio","Pickleballers Podcast with featured guest Gabe Tardio","https://dh7h3upxwg7do.cloudfront.net/Images/S3/PickleballersPOD169.jpg",0,0],
+    ["2026-11-11T09:00:00Z","2026-11-11T09:30:00Z","Beyond The Courts: LA Xtreme - Powered by Organics Ocean","Episode 5","LA Xtreme gives you an inside look at their team and processes","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/LAXtreme16x9correct.jpg",0,0],
+    ["2026-11-11T09:30:00Z","2026-11-11T10:00:00Z","PBTV Big Shots","Episode 6","PBTV Big Shots Episode 6","https://dh7h3upxwg7do.cloudfront.net/Images/S3/PBTVBIGSHOTS16x9.png",0,0],
+    ["2026-11-11T10:00:00Z","2026-11-11T10:30:00Z","Brighter Pickleball: On Tour","Episode 26 - Chicago","Brighter Pickleball: On Tour Episode 26","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/BRIGHT_16x9.jpg",0,0],
+    ["2026-11-11T10:30:00Z","2026-11-11T11:00:00Z","Brighter Pickleball: On Tour","Episode 27 - Hong Kong Part 1","Brighter Pickleball: On Tour Episode 27","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/BRIGHT_16x9.jpg",0,0],
+    ["2026-11-11T11:00:00Z","2026-11-11T17:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Championship Sunday","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",0,0],
+    ["2026-11-11T17:00:00Z","2026-11-11T18:00:00Z","Spec Check","Spec Check - Episode 1","The ultimate Pickleball gear review show revealing the sport's latest technology and newest products","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/SPEC_CHECK_16x9.jpg",0,0],
+    ["2026-11-11T18:00:00Z","2026-11-11T20:00:00Z","MLP Champions Series","MLP Champions Series: Dallas TeamBattle","MLP Champions Series: Dallas TeamBattle Part 1 -","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/MLPChampionshipSeries16x9.jpg",0,0],
+    ["2026-11-11T20:00:00Z","2026-11-11T20:30:00Z","Beyond The Courts: LA Xtreme - Powered by Organics Ocean","Episode 5","LA Xtreme gives you an inside look at their team and processes","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/LAXtreme16x9correct.jpg",0,0],
+    ["2026-11-11T20:30:00Z","2026-11-12T00:00:00Z","Major League Pickleball","MLP Nations Cup 2026: Day 3","Pickleball coverage from MLP Nations Cup 2026","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/MLPNC16x9.jpg",0,0],
+    ["2026-11-12T00:00:00Z","2026-11-12T02:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Round of 16","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",0,0],
+    ["2026-11-12T02:00:00Z","2026-11-12T03:00:00Z","Spec Check","Spec Check - Episode 1","The ultimate Pickleball gear review show revealing the sport's latest technology and newest products","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/SPEC_CHECK_16x9.jpg",0,0],
+    ["2026-11-12T03:00:00Z","2026-11-12T04:00:00Z","Pickleballers Podcast","Featuring Lacy Schneeman","Pickleballers Podcast with featured guest Lacy Schneeman","https://dh7h3upxwg7do.cloudfront.net/Images/S3/PickleballersPOD169.jpg",0,0],
+    ["2026-11-12T04:00:00Z","2026-11-12T10:00:00Z","PPA Tour Pickleball","Pickleball World Championships: Championship Sunday","Pickleball coverage from PPA Tour: Pickleball World Championships","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PPA_WORLDS26_16x9.jpg",0,0],
+    ["2026-11-12T10:00:00Z","2026-11-12T11:00:00Z","Pickleballers Podcast","Featuring Fedrico Staksrud","Pickleballers Podcast with featured guest Fedrico Staksrud","https://dh7h3upxwg7do.cloudfront.net/Images/S3/PickleballersPOD169.jpg",0,0],
+    ["2026-11-12T11:00:00Z","2026-11-12T11:30:00Z","PBTV Big Shots","Episode 6","PBTV Big Shots Episode 6","https://dh7h3upxwg7do.cloudfront.net/Images/S3/PBTVBIGSHOTS16x9.png",0,0],
+    ["2026-11-12T11:30:00Z","2026-11-12T12:30:00Z","Pickleballers Podcast","Featuring Grayson Goldin","Pickleballers Podcast with featured guest Grayson Goldin","https://dh7h3upxwg7do.cloudfront.net/Images/S3/PickleballersPOD169.jpg",0,0],
+    ["2026-11-12T12:30:00Z","2026-11-12T13:00:00Z","Pickleball Eats","Pickleball Eats: Hannah Blatt and Grayson Goldin","Top pickleball pros take you behind the scenes of their favorite restaunts on tour","https://dh7h3upxwg7do.cloudfront.net/Images/S3/pkbl/PickleballEats16x9.jpg",0,0]
+  ];
+
+  const LABEL = { original: "PBTV Original", mlp: "MLP", ppa: "PPA Tour", tba: "TBA" };
+  const MO = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const WD = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const ET_FMT = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+
+  let slots = [];          // { start, stop, title, sub, desc, icon, premiere, kind, day }
+  let source = "none";     // "live" | "saved" | "none"
+  let loadedAt = null;
+  let selected = null;
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
+  function et(date) {
+    const parts = ET_FMT.formatToParts(date), g = t => parts.find(p => p.type === t).value;
+    return { day: g("year") + "-" + g("month") + "-" + g("day"), h: Number(g("hour")) % 24, m: Number(g("minute")) };
+  }
+  function clock(date) { const t = et(date); return (((t.h + 11) % 12) + 1) + ":" + String(t.m).padStart(2, "0") + " " + (t.h >= 12 ? "PM" : "AM"); }
+  function dayInfo(day) { const [y, m, d] = day.split("-").map(Number); return { m, d, wd: WD[new Date(Date.UTC(y, m - 1, d)).getUTCDay()] }; }
+  function kindOf(title) {
+    if (/^to be announced$/i.test(title)) return "tba";
+    if (/^PPA/.test(title)) return "ppa";
+    if (/^(Major League Pickleball|MLP)/.test(title)) return "mlp";
+    return "original";
+  }
+  function makeSlot(start, stop, title, sub, desc, icon, premiere, live) {
+    title = title.trim(); sub = (sub || "").trim();
+    if (sub.startsWith(title + ": ")) sub = sub.slice(title.length + 2);
+    const s = { start, stop, title, sub, desc: (desc || "").trim(), icon: icon || "", premiere: !!premiere, live: !!live, kind: kindOf(title) };
+    s.day = et(start).day;
+    return s;
+  }
+  // XMLTV times look like 2026-10-20T10:00:00.000+0000; add the colon so every browser parses them.
+  function xmltvDate(v) { return new Date(String(v).replace(/([+-]\d{2})(\d{2})$/, "$1:$2")); }
+
+  function parseFeed(text) {
+    const doc = new DOMParser().parseFromString(text, "application/xml");
+    if (doc.querySelector("parsererror")) throw new Error("Guide feed is not valid XML");
+    const out = [...doc.getElementsByTagName("programme")].map(p => {
+      const txt = tag => (p.getElementsByTagName(tag)[0] || {}).textContent || "";
+      const icon = p.getElementsByTagName("icon")[0];
+      return makeSlot(xmltvDate(p.getAttribute("start")), xmltvDate(p.getAttribute("stop")), txt("title"), txt("sub-title"), txt("desc"),
+        icon ? icon.getAttribute("src") : "", p.getElementsByTagName("premiere").length > 0,
+        // Live events carry the XMLTV <live/> tag and an AiringType of "Live"; either one marks the program live.
+        p.getElementsByTagName("live").length > 0 || /^\s*live\s*$/i.test(txt("AiringType")));
+    }).filter(s => !isNaN(s.start) && !isNaN(s.stop));
+    if (!out.length) throw new Error("Guide feed has no programs");
+    return out.sort((a, b) => a.start - b.start);
+  }
+
+  async function load() {
+    try {
+      const res = await fetch(FEED_URL, { cache: "no-cache" });
+      if (!res.ok) throw new Error("Guide feed returned " + res.status);
+      slots = parseFeed(await res.text());
+      source = "live"; loadedAt = new Date();
+    } catch (err) {
+      console.warn("Using saved schedule:", err);
+      if (source !== "live") {   // keep a good live copy over the saved one
+        slots = FALLBACK.map(r => makeSlot(new Date(r[0]), new Date(r[1]), r[2], r[3], r[4], r[5], r[6], r[7]));
+        source = "saved";
+      }
+    }
+    render();
+  }
+
+  // ---- rendering ----
+  const daysEl = document.getElementById("days");
+  const schedEl = document.getElementById("sched");
+
+  function visibleDays(now) {
+    const today = et(now).day;
+    return [...new Set(slots.map(s => s.day))].filter(d => d >= today).sort();
+  }
+
+  function renderDays(days, today, now) {
+    daysEl.innerHTML = "";
+    days.forEach(day => {
+      const d = dayInfo(day);
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "day"; b.id = "day-" + day;
+      b.setAttribute("role", "tab");
+      b.setAttribute("aria-selected", String(day === selected));
+      b.setAttribute("aria-controls", "sched");
+      b.tabIndex = day === selected ? 0 : -1;
+      const hasLive = slots.some(s => s.day === day && s.live && s.stop > now);
+      b.innerHTML = '<span class="mo">' + MO[d.m - 1] + '</span><span class="d">' + d.d + '</span><span class="wd">' + (day === today ? "Today" : d.wd) + "</span>" +
+        (hasLive ? '<span class="flag" aria-hidden="true"></span><span class="vh">, live event</span>' : "");
+      b.addEventListener("click", () => select(day, false));
+      daysEl.appendChild(b);
+    });
+  }
+  function select(day, focus) {
+    selected = day; render();
+    const btn = document.getElementById("day-" + day);
+    if (btn) { if (focus) btn.focus(); btn.scrollIntoView({ block: "nearest", inline: "nearest" }); }
+  }
+  daysEl.addEventListener("keydown", e => {
+    const days = visibleDays(new Date()), k = days.indexOf(selected);
+    if (e.key === "ArrowRight" && k < days.length - 1) { e.preventDefault(); select(days[k + 1], true); }
+    if (e.key === "ArrowLeft" && k > 0) { e.preventDefault(); select(days[k - 1], true); }
+  });
+
+  function renderSched(now, today) {
+    const head = document.getElementById("sched-h");
+    schedEl.innerHTML = "";
+    if (!selected) {
+      head.textContent = "Today's lineup";
+      schedEl.innerHTML = source === "none"
+        ? '<div class="empty"><b>Loading the channel guide.</b></div>'
+        : '<div class="empty"><b>The schedule isn\'t available right now.</b><br>The live channel plays 24/7. Tune in any time.</div>';
+      return;
+    }
+    const d = dayInfo(selected);
+    head.textContent = selected === today ? "Today's lineup" : d.wd + ", " + MO[d.m - 1] + " " + d.d;
+    schedEl.setAttribute("aria-labelledby", "day-" + selected);
+    const list = slots.filter(s => s.day === selected);
+    const confirmed = list.filter(s => s.kind !== "tba").length;
+    if (!confirmed) {
+      schedEl.innerHTML = '<div class="empty"><b>Programming for ' + MO[d.m - 1] + " " + d.d + " is still being set.</b><br>Check back soon. The live channel plays 24/7 in the meantime.</div>";
+      return;
+    }
+    list.forEach(s => {
+      const isNow = s.start <= now && now < s.stop, isPast = s.stop <= now, tba = s.kind === "tba";
+      const el = document.createElement("div");
+      el.className = "row" + (isNow ? " now" : "") + (s.live ? " is-live" : "") + (isPast ? " past" : "") + (tba ? " tba" : "");
+      const tag = s.live && !isPast ? '<span class="tag onair">Live</span>'
+        : s.premiere && !isPast ? '<span class="tag premiere">Premiere</span>'
+        : '<span class="tag">' + LABEL[s.kind] + "</span>";
+      el.innerHTML =
+        '<div class="time">' + clock(s.start) + "<small>" + (isNow ? (s.live ? "Live now" : "On now") : "ET") + "</small></div>" +
+        '<div class="what"><div class="show">' + esc(tba ? "To be announced" : s.title) + "</div>" + (s.sub ? '<div class="ep">' + esc(s.sub) + "</div>" : "") + "</div>" +
+        '<div class="act">' + (isNow ? '<a class="btn btn-live btn-sm" href="' + PLAYER + '">Watch live</a>' : tag) + "</div>";
+      if (s.desc && !tba) el.title = s.desc;
+      schedEl.appendChild(el);
+    });
+    if (confirmed < list.length) {
+      const n = document.createElement("p");
+      n.className = "tz"; n.style.marginTop = "14px";
+      n.textContent = "Slots marked TBA will be filled as programming is confirmed.";
+      schedEl.appendChild(n);
+    }
+  }
+
+  function renderOnNow(now) {
+    const cur = slots.find(s => s.start <= now && now < s.stop);
+    const nxt = slots.find(s => s.start >= (cur ? cur.stop : now) && s.kind !== "tba");
+    const title = document.getElementById("now-title"), sub = document.getElementById("now-sub"), next = document.getElementById("now-next");
+    const art = document.getElementById("now-art"), screen = art.parentElement;
+    const real = cur && cur.kind !== "tba";
+    const liveNow = !!(real && cur.live);
+    document.getElementById("now-badge").classList.toggle("onair", liveNow);
+    document.getElementById("now-badge-text").textContent = liveNow ? "Live" : "On air";
+    title.textContent = real ? cur.title : "PickleballTV Live";
+    sub.textContent = real ? (cur.sub || cur.desc) : "The 24/7 channel, streaming now";
+    if (real && cur.icon) {
+      if (art.getAttribute("src") !== cur.icon) art.src = cur.icon;
+      art.hidden = false; screen.classList.add("has-art");
+    } else { art.hidden = true; art.removeAttribute("src"); screen.classList.remove("has-art"); }
+    if (nxt) {
+      const when = (nxt.day === et(now).day ? "" : dayInfo(nxt.day).wd + " ") + clock(nxt.start) + " ET";
+      next.innerHTML = "<span>Up next</span><b>" + when + "</b><span>" + esc(nxt.title) + "</span>" + (nxt.live ? '<span class="tag onair">Live</span>' : "");
+    } else next.innerHTML = "<span>More programming is being added. Check the schedule below.</span>";
+  }
+
+  function renderStatus(now) {
+    document.getElementById("tz-note").textContent = "Times shown in Eastern. It's " + clock(now) + " ET.";
+    const st = document.getElementById("feed-status");
+    st.textContent = source === "live" ? "Guide updated " + clock(loadedAt) + " ET."
+      : source === "saved" ? "Showing a saved copy of the guide. It may be out of date." : "";
+  }
+
+  function render() {
+    const now = new Date(), today = et(now).day, days = visibleDays(now);
+    if (!days.includes(selected)) selected = days[0] || null;
+    renderDays(days, today, now);
+    renderSched(now, today);
+    renderOnNow(now);
+    renderStatus(now);
+  }
+
+  // Footer "Cookie Preferences" reopens the Ketch consent panel. Calls queue until Ketch has loaded.
+  document.getElementById("cookie-prefs").addEventListener("click", () => { if (window.ketch) window.ketch("showPreferences"); });
+
+  render();
+  load();
+  setInterval(render, TICK_MS);
+  setInterval(load, REFRESH_MS);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) load(); });
+})();
+</script>
+</body>
+</html>
